@@ -4,6 +4,9 @@ import tensorflow as tf
 import collections as cns
 
 
+# the part of deep q learning
+
+
 def dense(x, weights, bias, activation=tf.identity, **activation_kwargs):
     """Dense layer."""
     #x = x.astype("float32")
