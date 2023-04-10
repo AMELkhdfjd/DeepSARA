@@ -71,11 +71,11 @@ class Network(object):
             [1, self.output_size]
         ]
 
-        self.weights = [init_weights(s, weights_initializer) for s in wshapes] # initialize the weights for each matrix of layers
-        # for exemple self.weights[0] will contain the weights of the links between the input layer and the first hidden layer, the same for bias
+        self.weights = [init_weights(s, weights_initializer) for s in wshapes] ## initialize the weights for each matrix of layers
+        ## for exemple self.weights[0] will contain the weights of the links between the input layer and the first hidden layer, the same for bias
         self.biases = [init_weights(s, bias_initializer) for s in bshapes] # check the line above
 
-        self.trainable_variables = self.weights + self.biases # trainable variables are defined as variables that can be modified during the optimization process. 
+        self.trainable_variables = self.weights + self.biases ## trainable variables are defined as variables that can be modified during the optimization process. 
 
 
 
@@ -86,7 +86,7 @@ class Network(object):
         h1 = dense(inputs, self.weights[0], self.biases[0], tf.nn.relu) #hidden layer 1 activation with relu and its dense attt
         h2 = dense(h1, self.weights[1], self.biases[1], tf.nn.relu) #hidden layer 2 
 
-        out = dense(h2, self.weights[2], self.biases[2])# output layer with weights and bias and tf.identity activation bcz we dont have the last argument
+        out = dense(h2, self.weights[2], self.biases[2])## output layer with weights and bias and tf.identity activation bcz we dont have the last argument
 
         return out
     
@@ -97,10 +97,10 @@ class Network(object):
         with tf.GradientTape() as tape:
             qvalues = tf.squeeze(self.model(inputs))
             preds = tf.reduce_sum(qvalues * actions_one_hot, axis=1)
-            loss = tf.losses.mean_squared_error(targets, preds)
+            loss = tf.losses.mean_squared_error(targets, preds)# to calculate the loss function 
 
         grads = tape.gradient(loss, self.trainable_variables)
-        self.optimizer.apply_gradients(zip(grads, self.trainable_variables)) #gradient descent
+        self.optimizer.apply_gradients(zip(grads, self.trainable_variables)) # applying gradient descent here
 
 
 class Memory(object):
@@ -116,10 +116,11 @@ class Memory(object):
 
     def sample(self, batch_size):
         """Sample a batch of experiences from the buffer."""
+        ## forms a batch buffer from the replay memory
         buffer_size = len(self.buffer)
         print("**",buffer_size)
         index = np.random.choice(np.arange(buffer_size), size=batch_size, replace=False)
-        return [self.buffer[i] for i in index]
+        return [self.buffer[i] for i in index] ## return the batch buffer
 
     def __len__(self):
         """Interface to access buffer length."""
@@ -146,7 +147,7 @@ class Agent(object):
         self.online_network = Network(state_space_size, action_space_size)
         self.target_network = Network(state_space_size, action_space_size)
 
-        self.update_target_network()
+        self.update_target_network()## initialse the target network by copying the weights of the online network to the target network
 
         # training parameters
         self.target_update_freq = target_update_freq
@@ -160,14 +161,17 @@ class Agent(object):
         self.steps = 0
 
         # replay memory
-        self.memory = Memory(replay_memory_size)
+        self.memory = Memory(replay_memory_size)## define an object of the class Memory
         self.replay_start_size = replay_start_size
         self.experience_replay = Memory(replay_memory_size)
+
+#Note: the difference between exprience replay and the memory
 
     def handle_episode_start(self):
         self.last_state, self.last_action = None, None
 
-    def step(self, state, reward, training=True):
+    def step(self, state, reward, training=True): ## this function returns the actions taken after choosing it using the policy, updating the replay memory and 
+                                                  ## traning the network and updating the target network's weights in some cases
         """Observe state and rewards, select action.
         It is assumed that `observation` will be an object with
         a `state` vector and a `reward` float or integer. The reward
@@ -177,7 +181,7 @@ class Agent(object):
         last_reward = reward
         state = state
         
-        action = self.policy(state, training)
+        action = self.policy(state, training) ## here we have choosen the traning = True
 
         if training:
             self.steps += 1
@@ -191,15 +195,15 @@ class Agent(object):
                     "next_state": state
                 }
 
-                self.memory.add(experience)
+                self.memory.add(experience) ## adding the experience to the replay memory
                 #print("**memory size:",self.memory.__len__())
             #else:
                 #print("&& last_state",last_state)
 
-            if self.steps > self.replay_start_size: #para acumular cierta cantidad de experiences antes de comenzar el entrenamiento
+            if self.steps > self.replay_start_size: ## to accumulate a certain number of experiences before starting the training
                 self.train_network()
 
-                if self.steps % self.target_update_freq == 0: #el clon de la red se realiza cada cierta cant de steps
+                if self.steps % self.target_update_freq == 0: ## the network clone is performed every certain number of steps
                     self.update_target_network()
 
         self.last_state = state
@@ -207,6 +211,8 @@ class Agent(object):
 
         return action
 
+
+    ## the function policy to select an action based on exploration and exploitation and also the traning parameter
     def policy(self, state, training):
         """Epsilon-greedy policy for training, greedy policy otherwise."""
         explore_prob = self.max_explore - (self.steps * self.anneal_rate)#probabilidad de exploracion decreciente
@@ -221,13 +227,18 @@ class Agent(object):
             action = np.squeeze(np.argmax(qvalues, axis=-1))
 
         return action
+    
 
+
+    # just copying the weights of the online network to the target network
     def update_target_network(self):
         """Update target network weights with current online network values."""
         variables = self.online_network.trainable_variables
         variables_copy = [tf.Variable(v) for v in variables]
         self.target_network.trainable_variables = variables_copy
 
+
+    
     def train_network(self):
         """Update online network weights."""
         batch = self.memory.sample(self.batch_size)
