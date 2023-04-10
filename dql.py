@@ -1,12 +1,9 @@
-
 import numpy as np
 import tensorflow as tf
 import collections as cns
 
 
-# the part of deep q learning
-
-
+## activation function applied to the input tensor x, multiplication of x with weights and adding the bias
 def dense(x, weights, bias, activation=tf.identity, **activation_kwargs):
     """Dense layer."""
     #x = x.astype("float32")
@@ -15,12 +12,15 @@ def dense(x, weights, bias, activation=tf.identity, **activation_kwargs):
     z = tf.matmul(x, weights) + bias
     return activation(z, **activation_kwargs)
 
+#Note:
+# --> the activation function is applied to the output of the layer, which introduces non-linearity into the model. The non-linearity is important for the neural network to be able to learn complex patterns in the data.
+
 
 def init_weights(shape, initializer):
-    """Initialize weights for tensorflow layer."""
+    """Initialize weights for tensorflow layer. Initializer input is a function that takes the shape of the weights"""
     weights = tf.Variable(
         initializer(shape),
-        trainable=True,
+        trainable=True, # weights can be updated during training
         dtype=tf.float32
     )
 
@@ -33,7 +33,7 @@ class Network(object):
     def __init__(self,
                  input_size,
                  output_size,
-                 hidden_size=[50, 50],
+                 hidden_size=[50, 50], # ATTTT: we have here two hidden layers
                  weights_initializer=tf.initializers.glorot_uniform(),
                  bias_initializer=tf.initializers.zeros(),
                  optimizer=tf.optimizers.Adam,
@@ -48,24 +48,25 @@ class Network(object):
         self.initialize_weights(weights_initializer, bias_initializer)
         self.optimizer = optimizer(**optimizer_kwargs)
 
+    # this function takes two inputs: the two functions to initialize weights and bias, creates the shapes of them and calls the two functions to initalize weights for all neurons
     def initialize_weights(self, weights_initializer, bias_initializer):
         """Initialize and store weights."""
         wshapes = [
-            [self.input_size, self.hidden_size[0]],
+            [self.input_size, self.hidden_size[0]], # define the shape of the matrix weights, the first matrix between the input layer and the first hidden layer, ...etc
             [self.hidden_size[0], self.hidden_size[1]],
             [self.hidden_size[1], self.output_size]
         ]
-
+        # defining the matrix of bias for each layer neurons
         bshapes = [
-            [1, self.hidden_size[0]],
+            [1, self.hidden_size[0]], # bias for the first hidden layer
             [1, self.hidden_size[1]],
             [1, self.output_size]
         ]
 
-        self.weights = [init_weights(s, weights_initializer) for s in wshapes]
+        self.weights = [init_weights(s, weights_initializer) for s in wshapes] # initialize the weights for each matrix of layers
         self.biases = [init_weights(s, bias_initializer) for s in bshapes]
 
-        self.trainable_variables = self.weights + self.biases
+        self.trainable_variables = self.weights + self.biases # trainable variables are defined as variables that can be modified during the optimization process. 
 
     def model(self, inputs):
         """Given a state vector, return the Q values of actions."""
