@@ -16,6 +16,8 @@ def dense(x, weights, bias, activation=tf.identity, **activation_kwargs):
 # --> the activation function is applied to the output of the layer, which introduces non-linearity into the model. The non-linearity is important for the neural network to be able to learn complex patterns in the data.
 
 
+
+
 def init_weights(shape, initializer):
     """Initialize weights for tensorflow layer. Initializer input is a function that takes the shape of the weights"""
     weights = tf.Variable(
@@ -25,6 +27,9 @@ def init_weights(shape, initializer):
     )
 
     return weights
+
+
+
 
 
 class Network(object):
@@ -48,6 +53,9 @@ class Network(object):
         self.initialize_weights(weights_initializer, bias_initializer)
         self.optimizer = optimizer(**optimizer_kwargs)
 
+
+
+
     # this function takes two inputs: the two functions to initialize weights and bias, creates the shapes of them and calls the two functions to initalize weights for all neurons
     def initialize_weights(self, weights_initializer, bias_initializer):
         """Initialize and store weights."""
@@ -64,18 +72,25 @@ class Network(object):
         ]
 
         self.weights = [init_weights(s, weights_initializer) for s in wshapes] # initialize the weights for each matrix of layers
-        self.biases = [init_weights(s, bias_initializer) for s in bshapes]
+        # for exemple self.weights[0] will contain the weights of the links between the input layer and the first hidden layer, the same for bias
+        self.biases = [init_weights(s, bias_initializer) for s in bshapes] # check the line above
 
         self.trainable_variables = self.weights + self.biases # trainable variables are defined as variables that can be modified during the optimization process. 
 
-    def model(self, inputs):
-        """Given a state vector, return the Q values of actions."""
-        h1 = dense(inputs, self.weights[0], self.biases[0], tf.nn.relu) #hidden layer 1
-        h2 = dense(h1, self.weights[1], self.biases[1], tf.nn.relu) #hidden layer 2
 
-        out = dense(h2, self.weights[2], self.biases[2])
+
+
+    ## creating the model of the layers with weights and bias and using an activation function
+    def model(self, inputs):
+        """Given a state vector, return the Q values of actions.  ??? need to confirm this """
+        h1 = dense(inputs, self.weights[0], self.biases[0], tf.nn.relu) #hidden layer 1 activation with relu and its dense attt
+        h2 = dense(h1, self.weights[1], self.biases[1], tf.nn.relu) #hidden layer 2 
+
+        out = dense(h2, self.weights[2], self.biases[2])# output layer with weights and bias and tf.identity activation bcz we dont have the last argument
 
         return out
+    
+
 
     def train_step(self, inputs, targets, actions_one_hot):
         """Update weights."""
