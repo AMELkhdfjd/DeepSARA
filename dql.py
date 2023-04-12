@@ -3,6 +3,13 @@ import tensorflow as tf
 import collections as cns
 
 
+
+# https://stackoverflow.com/questions/11706215/how-can-i-fix-the-git-error-object-file-is-empty
+
+
+
+
+
 ## activation function applied to the input tensor x, multiplication of x with weights and adding the bias
 def dense(x, weights, bias, activation=tf.identity, **activation_kwargs):
     """Dense layer."""
@@ -165,12 +172,12 @@ class Agent(object):
         self.replay_start_size = replay_start_size
         self.experience_replay = Memory(replay_memory_size)
 
-#Note: the difference between exprience replay and the memory
+#Note: the difference between exprience replay and the memory, edir: we dont use the experience replay here
 
     def handle_episode_start(self):
         self.last_state, self.last_action = None, None
 
-    def step(self, state, reward, training=True): ## this function returns the actions taken after choosing it using the policy, updating the replay memory and 
+    def step(self, state, reward, training=True): ## this function returns the action taken after choosing it using the policy, updating the replay memory and 
                                                   ## traning the network and updating the target network's weights in some cases
         """Observe state and rewards, select action.
         It is assumed that `observation` will be an object with
