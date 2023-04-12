@@ -61,7 +61,7 @@ class Network(object):
         self.optimizer = optimizer(**optimizer_kwargs)
 
 
-
+###testing here 
 
     # this function takes two inputs: the two functions to initialize weights and bias, creates the shapes of them and calls the two functions to initalize weights for all neurons
     def initialize_weights(self, weights_initializer, bias_initializer):
