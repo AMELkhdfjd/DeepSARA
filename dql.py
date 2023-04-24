@@ -10,7 +10,9 @@ import collections as cns
 
 
 
-## activation function applied to the input tensor x, multiplication of x with weights and adding the bias
+## activation function applied to the layer x, multiplication of x with weights and adding the bias
+
+## ATT x here is a layer that we are passing as argument to calculate in the activation function
 def dense(x, weights, bias, activation=tf.identity, **activation_kwargs):
     """Dense layer."""
     #x = x.astype("float32")
@@ -67,11 +69,11 @@ class Network(object):
     def initialize_weights(self, weights_initializer, bias_initializer):
         """Initialize and store weights."""
         wshapes = [
-            [self.input_size, self.hidden_size[0]], # define the shape of the matrix weights, the first matrix between the input layer and the first hidden layer, ...etc
+            [self.input_size, self.hidden_size[0]], # define the shape of the matrices weights, the first matrix between the input layer and the first hidden layer, ...etc
             [self.hidden_size[0], self.hidden_size[1]],
             [self.hidden_size[1], self.output_size]
         ]
-        # defining the matrix of bias for each layer neurons
+        # defining the matrices of bias for each layer neurons
         bshapes = [
             [1, self.hidden_size[0]], # bias for the first hidden layer
             [1, self.hidden_size[1]],
@@ -90,7 +92,7 @@ class Network(object):
     ## creating the model of the layers with weights and bias and using an activation function
     def model(self, inputs):
         """Given a state vector, return the Q values of actions.  ??? need to confirm this """
-        h1 = dense(inputs, self.weights[0], self.biases[0], tf.nn.relu) #hidden layer 1 activation with relu and its dense attt
+        h1 = dense(inputs, self.weights[0], self.biases[0], tf.nn.relu) #hidden layer 1 activation with relu and its dense attt, attt check the h1 and h2 how they are passed as arguments
         h2 = dense(h1, self.weights[1], self.biases[1], tf.nn.relu) #hidden layer 2 
 
         out = dense(h2, self.weights[2], self.biases[2])## output layer with weights and bias and tf.identity activation bcz we dont have the last argument
@@ -170,8 +172,9 @@ class Agent(object):
         # replay memory
         self.memory = Memory(replay_memory_size)## define an object of the class Memory
         self.replay_start_size = replay_start_size
-        self.experience_replay = Memory(replay_memory_size)
+        self.experience_replay = Memory(replay_memory_size)## is not used confirm that
 
+        
 #Note: the difference between exprience replay and the memory, edir: we dont use the experience replay here
 
     def handle_episode_start(self):
@@ -246,7 +249,7 @@ class Agent(object):
 
 
     
-    def train_network(self):
+    def train_network(self):### need to revise this 
         """Update online network weights."""
         batch = self.memory.sample(self.batch_size)
         inputs = np.array([b["state"] for b in batch]) #####
