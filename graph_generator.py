@@ -14,14 +14,14 @@ matplotlib.use("agg")
 import matplotlib.pyplot as plt
 
 #configuration parameters
-# cpu_central = (80,100) #cpu range for centralized nodes, se usa una tupla que es un obj inmutable 
+# cpu_central = (80,100) #cpu range for centralized nodes, a tuple is used which is an immutable obj
 # str_central = (120,200)
 # cpu_local = (65,85)
 # cpu_edge = (50,70) #storage range for edge nodes
 # str_edge = (60,100)
 
 
-cpu_central = (300,300) #cpu range for centralized nodes, se usa una tupla que es un obj inmutable 
+cpu_central = (300,300) #cpu range for centralized nodes, a tuple is used which is an immutable obj
 #str_central = (200,200)
 #cpu_local = (150,150)
 cpu_edge = (100,100) #storage range for edge nodes
